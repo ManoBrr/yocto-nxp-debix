@@ -1,0 +1,38 @@
+From 12ac4372cc6a66e83b61f8510bdaa4f11c72113d Mon Sep 17 00:00:00 2001
+From: Tom Hochstein <tom.hochstein@nxp.com>
+Date: Wed, 22 Apr 2020 14:08:36 -0500
+Subject: [PATCH] meson: Separate surfaceless option from x11
+
+Allow surfaceless build separate from the x11 option.
+Also require gbm for surfaceless build.
+
+Upstream-Status: Pending
+
+Signed-off-by: Tom Hochstein <tom.hochstein@nxp.com>
+
+---
+ meson.build | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+Index: git/meson.build
+===================================================================
+--- git.orig/meson.build
++++ git/meson.build
+@@ -72,6 +72,7 @@ dep_gbm = _dep_null
+ dep_cocoa = _dep_null
+ dep_core_foundation = _dep_null
+ dep_gl_headers = _dep_null
++dep_surfaceless = _dep_null
+ 
+ # Get dependencies
+ if build_wgl
+@@ -99,7 +100,8 @@ else
+   build_gbm = dep_drm.found() and dep_egl.found() and dep_gbm.found()
+ 
+   dep_egl = dependency('egl', required : get_option('surfaceless_egl'))
+-  build_surfaceless = dep_egl.found()
++  dep_gbm = dependency('gbm', required : get_option('surfaceless_egl'))
++  build_surfaceless = dep_egl.found() and dep_gbm.found()
+ 
+   dep_egl = dependency('egl', required : get_option('wayland'))
+   dep_wayland_client = dependency(
