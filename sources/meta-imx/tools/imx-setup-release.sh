@@ -143,6 +143,14 @@ echo "# Switch to Debian packaging and include package-management in the image" 
 echo "PACKAGE_CLASSES = \"package_deb\"" >> conf/local.conf
 echo "EXTRA_IMAGE_FEATURES += \"package-management\"" >> conf/local.conf
 
+### John_gao add install package
+##echo "IMAGE_INSTALL:append = \"android-tools android-tools-conf\"" >> conf/local.conf
+
+
+### John_gao 
+echo "BB_NUMBER_THREADS = \"16\"" >> conf/local.conf
+echo "IMAGE_FSTYPES = \"wic tar.bz2\"" >> conf/local.conf
+
 if [ ! -e $BUILD_DIR/conf/bblayers.conf.org ]; then
     cp $BUILD_DIR/conf/bblayers.conf $BUILD_DIR/conf/bblayers.conf.org
 else
