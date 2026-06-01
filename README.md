@@ -66,8 +66,8 @@ $ sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential
 $ DISTRO=<distro name> MACHINE=<machine name> source imx-setup-release.sh -b
  <build dir>
 
-eg.
-build debix model ab
+eg:
+
 $ EULA=1 DISTRO=fsl-imx-xwayland MACHINE=imx8mp-lpddr4-evk source imx-setup-release.sh -b Model_AB_Infinity
 $ bitbake imx-image-full
 ```

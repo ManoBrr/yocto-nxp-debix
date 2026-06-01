@@ -19,10 +19,10 @@ DEPENDS += "coreutils-native"
 
 SRC_URI = "${LINUX_IMX_SRC}"
 LINUX_IMX_SRC ?= "git://github.com/debix-tech/linux-nxp-debix;protocol=https;branch=${SRCBRANCH}"
-SRCBRANCH = "lf_6.12.3-debix_model_ab"
+SRCBRANCH = "lf_6.12.3-debix_model_a-b-infinity"
 KBRANCH = "${SRCBRANCH}"
 LOCALVERSION = ""
-SRCREV = "34099a3c1a8c09693a46ea7ba5370115a733996e"
+SRCREV = "c96f68339615ec4174794b3033d254dbc98a5aac"
 
 # PV is defined in the base in linux-imx.inc file and uses the LINUX_VERSION definition
 # required by kernel-yocto.bbclass.
