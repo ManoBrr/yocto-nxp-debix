@@ -72,4 +72,116 @@ $ EULA=1 DISTRO=fsl-imx-xwayland MACHINE=imx8mp-lpddr4-evk source imx-setup-rele
 $ bitbake imx-image-full
 ```
 
+---
+
+# Debix Model AB — Customizations
+
+This section documents the customizations made on top of the NXP i.MX 8M Plus BSP
+for the **Polyhex Debix Model AB** (LPDDR4 4GB, 16GB eMMC) with the **Model A IO
+extension board**.
+
+## Machine
+
+A dedicated machine has been created:
+
+- **`imx8mp-debix-model-ab`** — `sources/meta-imx/meta-imx-bsp/conf/machine/imx8mp-debix-model-ab.conf`
+  - Inherits `imx8mp-lpddr4-evk` (LPDDR4, DDR firmware, bootloader)
+  - Kernel DTB: `freescale/imx8mp-debix-io-board.dtb` (describes the IO extension:
+    PCIe, camera imx219, audio es8316, ADC ads1115, HDMI)
+  - U-Boot DTB: `imx8mp-evk.dtb` (the one that boots the board)
+  - TFA compatibility added in `meta-freescale/dynamic-layers/meta-arm/recipes-bsp/trusted-firmware-a/trusted-firmware-a_%.bbappend`
+
+Set it in `Model_AB_Infinity/conf/local.conf`:
+```
+MACHINE ??= 'imx8mp-debix-model-ab'
+```
+
+## U-Boot (4GB DDR fix)
+
+The board did not boot with the stock 2GB U-Boot. The DEBIX fork provides a 4GB branch:
+
+- `sources/meta-imx/meta-imx-bsp/recipes-bsp/u-boot/u-boot-imx-common_2024.04.inc`
+  - `SRCBRANCH = "lf_v2024.04-yocto_L6.12.3-debix_model_ab_4gbddr"`
+  - `SRCREV = "666557f2d6dafab3725a6bcc6c744678b4326dc2"` (commit "set to 4GB ddr config")
+
+A U-Boot config fragment forces `fdtfile` to the kernel DTB of the IO board:
+
+- `sources/meta-imx/meta-imx-bsp/recipes-bsp/u-boot/u-boot-imx_%.bbappend`
+- `sources/meta-imx/meta-imx-bsp/recipes-bsp/u-boot/files/0001-debix-model-ab-fdtfile.cfg`
+  ```
+  CONFIG_DEFAULT_FDT_FILE="imx8mp-debix-io-board.dtb"
+  ```
+
+## Images
+
+### `imx-image-multimedia`
+NXP reference image (multimedia, no QT6/OpenCV/ML). Docker removed
+(`DOCKER:mx8-nxp-bsp = ""` in `imx-image-multimedia.bb`).
+
+### `imx-image-minimal` (new)
+Minimal console-only image with basic services:
+- SSH server: **dropbear**
+- Networking: `iproute2`, `ethtool`
+- GPIO: `libgpiod-tools`
+- I2C: `i2c-tools`
+- Debix tools: `debix-custom` (debix-gpio, scripts)
+
+Recipe: `sources/meta-imx/meta-imx-bsp/recipes-polyhex/images/imx-image-minimal.bb`
+
+Notes:
+- Excludes `packagegroup-base-extended` (no wifi/bt/3g/nfc)
+- Removes `jailhouse` and `packagegroup-fsl-optee-imx` (added by default by meta-imx-bsp)
+- **Disables the DEBIX auto-expand script** (`expand_sd_rootfs.sh`) via
+  `ROOTFS_POSTPROCESS_COMMAND` — this script corrupts the rootfs partition on
+  first boot for small images. The image boots directly at its built size.
+
+## Other fixes
+
+- **pseudo** upgraded to 1.9.11 (`pseudo_git.bb`) to fix the `openat2`/tar
+  "Bad address" failure on Ubuntu 24.04 (YOCTO #16316).
+- **gstreamer1.0-plugins-bad**: `rsvg` PACKAGECONFIG removed
+  (`gstreamer1.0-plugins-bad_%.bbappend`) to avoid pulling the Rust toolchain.
+- **tensorflow-lite**: `XNNPACK_ENABLE_KLEIDIAI=off` added to work around a
+  KleidiAI SHA256 mismatch.
+
+## Layers
+
+`Model_AB_Infinity/conf/bblayers.conf` has been trimmed. Disabled layers
+(commented out): `meta-imx-ml`, `meta-nxp-demo-experience`,
+`meta-nxp-connectivity/*`, `meta-gnome`, `meta-qt6`, `meta-security/*`,
+`meta-virtualization`.
+
+## Useful commands
+
+```sh
+cd /home/chelarica/Documents/yocto/yocto-nxp-debix
+source setup-environment Model_AB_Infinity
+
+# Build images
+bitbake imx-image-minimal
+bitbake imx-image-multimedia
+
+# Rebuild U-Boot / imx-boot only
+bitbake -c cleanall u-boot-imx imx-boot
+bitbake imx-boot
+
+# Inspect a .wic image
+wic ls tmp/deploy/images/imx8mp-debix-model-ab/imx-image-minimal-imx8mp-debix-model-ab.rootfs.wic
+wic ls <image>.wic:1        # boot partition (fat32)
+wic ls <image>.wic:2        # rootfs (ext4)
+
+# Flash a .wic to an SD card (replace sdX with your device)
+sudo dd if=tmp/deploy/images/imx8mp-debix-model-ab/imx-image-minimal-imx8mp-debix-model-ab.rootfs.wic of=/dev/sdX bs=4M conv=fsync status=progress
+sudo sync
+
+# Flash only the bootloader (U-Boot) at offset 32KB
+sudo dd if=tmp/deploy/images/imx8mp-debix-model-ab/imx-boot-imx8mp-debix-model-ab-sd.bin-flash_evk of=/dev/sdX bs=1k seek=32 conv=fsync
+```
+
+Deployed artifacts are in `tmp/deploy/images/imx8mp-debix-model-ab/`:
+- `imx-image-minimal-imx8mp-debix-model-ab.rootfs.wic`
+- `imx-image-multimedia-imx8mp-debix-model-ab.rootfs.wic`
+- `imx-boot-imx8mp-debix-model-ab-sd.bin-flash_evk`
+- `Image`, `imx8mp-debix-io-board.dtb`
+
  
