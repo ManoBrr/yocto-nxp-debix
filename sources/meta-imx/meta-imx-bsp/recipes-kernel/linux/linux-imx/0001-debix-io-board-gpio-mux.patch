@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ManoBrr <manolo.brionne@gmail.com>
+Date: Sat, 15 Aug 2026 00:00:00 +0000
+Subject: [PATCH] debix-io-board: mux J2 GPIO pins and disable conflicting peripherals
+
+Mux the following pads to GPIO in the iomuxc hog group so they are
+available as GPIOs at boot:
+  SAI5_RXD0 -> GPIO3_IO21
+  SAI5_RXFS -> GPIO3_IO19
+  SAI5_MCLK -> GPIO3_IO25
+  SPDIF_TX  -> GPIO5_IO03
+  SPDIF_RX  -> GPIO5_IO04
+  GPIO1_IO11 -> GPIO1_IO11
+  GPIO1_IO13 -> GPIO1_IO13
+  ECSPI1_SCLK -> GPIO5_IO06
+  ECSPI1_MOSI -> GPIO5_IO07
+  ECSPI1_MISO -> GPIO5_IO08
+  ECSPI1_SS0  -> GPIO5_IO09
+  ECSPI2_SCLK -> GPIO5_IO10
+
+Disable the peripherals that conflict with these pins:
+  flexcan2 (SAI5_MCLK), i2c6 (SAI5_RXFS), uart4 (UART4_RXD/TXD),
+  ecspi1 (ECSPI1_*), ecspi2 (ECSPI2_SCLK)
+
+Upstream-Status: Inappropriate [custom board configuration]
+
+Signed-off-by: ManoBrr <manolo.brionne@gmail.com>
+---
+ arch/arm64/boot/dts/freescale/imx8mp-debix-io-board.dts | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-debix-io-board.dts b/arch/arm64/boot/dts/freescale/imx8mp-debix-io-board.dts
+index ab4bfef25f..6595170d20 100755
+--- a/arch/arm64/boot/dts/freescale/imx8mp-debix-io-board.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-debix-io-board.dts
+@@ -1192,6 +1192,19 @@ MX8MP_IOMUXC_HDMI_CEC__HDMIMIX_HDMI_CEC		0x40000010
+ 			 * default Reference Clock Frequency
+ 			 */
+ 			//MX8MP_IOMUXC_SD1_DATA7__GPIO2_IO09		0x1c4
++
++			MX8MP_IOMUXC_SAI5_RXD0__GPIO3_IO21  0x10
++			MX8MP_IOMUXC_SAI5_RXFS__GPIO3_IO19  0x10
++			MX8MP_IOMUXC_SAI5_MCLK__GPIO3_IO25  0x10
++			MX8MP_IOMUXC_SPDIF_TX__GPIO5_IO03   0x10
++			MX8MP_IOMUXC_SPDIF_RX__GPIO5_IO04   0x10
++			MX8MP_IOMUXC_GPIO1_IO11__GPIO1_IO11 0x10
++			MX8MP_IOMUXC_GPIO1_IO13__GPIO1_IO13 0x10
++			MX8MP_IOMUXC_ECSPI1_SCLK__GPIO5_IO06 0x10
++			MX8MP_IOMUXC_ECSPI1_MOSI__GPIO5_IO07 0x10
++			MX8MP_IOMUXC_ECSPI1_MISO__GPIO5_IO08 0x10
++			MX8MP_IOMUXC_ECSPI1_SS0__GPIO5_IO09  0x10
++			MX8MP_IOMUXC_ECSPI2_SCLK__GPIO5_IO10 0x10
+ 		>;
+ 	};
+ 
+@@ -1768,3 +1781,9 @@ &isp_0 {
+ &dewarp {
+ 	status = "okay";
+ };
++
++&flexcan2 { status = "disabled"; };
++&i2c6    { status = "disabled"; };
++&uart4   { status = "disabled"; };
++&ecspi1  { status = "disabled"; };
++&ecspi2  { status = "disabled"; };
+-- 
+2.34.1

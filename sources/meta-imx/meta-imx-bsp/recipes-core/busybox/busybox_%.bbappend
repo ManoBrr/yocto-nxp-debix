@@ -3,4 +3,5 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += "file://ftpget.cfg"
+SRC_URI += "file://devmem.cfg"
 
