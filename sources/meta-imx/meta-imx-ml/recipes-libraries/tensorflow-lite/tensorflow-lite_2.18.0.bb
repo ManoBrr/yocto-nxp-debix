@@ -36,6 +36,7 @@ EXTRA_OECMAKE = " \
     -DTFLITE_ENABLE_XNNPACK=on \
     -DTFLITE_PYTHON_WRAPPER_BUILD_CMAKE2=on \
     -DTFLITE_ENABLE_EXTERNAL_DELEGATE=on \
+    -DXNNPACK_ENABLE_KLEIDIAI=off \
     ${S}/tensorflow/lite/ \
 "
 EXTRA_OECMAKE_BUILD = "benchmark_model label_image"

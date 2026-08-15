@@ -5,9 +5,9 @@ LIC_FILES_CHKSUM = "file://Licenses/gpl-2.0.txt;md5=b234ee4d69f5fce4486a80fdaf4a
 
 SRC_URI = "${UBOOT_SRC};branch=${SRCBRANCH}"
 UBOOT_SRC ?= "git://github.com/debix-tech/uboot-nxp-debix;protocol=https"
-SRCBRANCH = "lf_v2024.04-yocto_L6.12.3-1.0.0-debix_model_ab_2gbddr"
+SRCBRANCH = "lf_v2024.04-yocto_L6.12.3-debix_model_ab_4gbddr"
 LOCALVERSION ?= "-${SRCBRANCH}"
-SRCREV = "d31522d5935cc1e2f535a0c393d8913dc1235ccf"
+SRCREV = "666557f2d6dafab3725a6bcc6c744678b4326dc2"
 
 DEPENDS += " \
     bc-native \

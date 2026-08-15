@@ -14,6 +14,11 @@ TFA_BUILD_TARGET:imx8mp-lpddr4-evk = "all"
 TFA_INSTALL_TARGET:imx8mp-lpddr4-evk = "bl31"
 TFA_PLATFORM:imx8mp-lpddr4-evk = "imx8mp"
 
+COMPATIBLE_MACHINE:imx8mp-debix-model-ab = "imx8mp-debix-model-ab"
+TFA_BUILD_TARGET:imx8mp-debix-model-ab = "all"
+TFA_INSTALL_TARGET:imx8mp-debix-model-ab = "bl31"
+TFA_PLATFORM:imx8mp-debix-model-ab = "imx8mp"
+
 COMPATIBLE_MACHINE:imx8mq-evk = "imx8mq-evk"
 TFA_BUILD_TARGET:imx8mq-evk = "all"
 TFA_INSTALL_TARGET:imx8mq-evk = "bl31"
